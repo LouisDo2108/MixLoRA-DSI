@@ -1,0 +1,4 @@
+{
+    "layerwise_novelty_threshold": -1.0,
+    "ood_sigma_threshold": 0.0
+}

@@ -1,0 +1,186 @@
+# ==== ENVIRONMENT SETUP ====
+source ~/.bashrc
+conda activate mixlora_dsi
+
+export CUDA_VISIBLE_DEVICES=0
+export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+export TQDM_DISABLE=1
+
+cd ./MixLoraDSI
+
+# ==== GLOBAL CONFIG ====
+model_name="mixloradsi"
+experiment_dir="experiments"
+run_name="row2_naive_expansion"
+base_dir="./mixloradsi/msmarco"
+initial_config="./MixLoraDSI/config/msmarco/ablations/row2_naive_expansion.json"
+epoch=5
+num_tasks=4
+
+# ==== TRAINING + EVALUATION LOOP ====
+for ((i = 1; i <= num_tasks; i++)); do
+    current_split="d$i"
+    previous_split="d$((i - 1))"
+
+    data_dir="$base_dir/$current_split"
+    output_dir="$data_dir/$experiment_dir/$run_name"
+    query_to_docid_path="$data_dir/doc2query/query_to_docid.train.json"
+    docid_to_smtid_path="$data_dir/$experiment_dir/rq_smtid/docid_to_tokenids.json"
+
+    if [ $i -eq 1 ]; then
+        model_dir="$base_dir/d0/$experiment_dir/ripor"
+        config_path="$initial_config"
+    else
+        model_dir="$base_dir/$previous_split/$experiment_dir/$run_name"
+        config_path="$model_dir/mixlora_config.json"
+    fi
+
+    echo "##### Training task $i #####"
+    python train_naive_expansion.py \
+        --run_name="${current_split}_${run_name}" \
+        --output_dir="$output_dir" \
+        --model_name="$model_name" \
+        --pretrained_path="$model_dir" \
+        --query_to_docid_path="$query_to_docid_path" \
+        --docid_to_smtid_path="$docid_to_smtid_path" \
+        --mixlora_config_json_path="$config_path" \
+        --taskid="$i" \
+        --save_safetensors=False \
+        --save_total_limit=1 \
+        --learning_rate=1e-3 \
+        --optim=adamw_8bit \
+        --dataloader_num_workers=4 \
+        --gradient_accumulation_steps=1 \
+        --per_device_train_batch_size=512 \
+        --bf16=True \
+        --tf32=True \
+        --num_train_epochs="$epoch" \
+        --weight_decay=0.01 \
+        --save_steps=20000 \
+        --warmup_ratio=0.1 \
+        --logging_steps=1000 \
+        --lr_scheduler_type=linear \
+        --max_grad_norm=1.0 \
+        --report_to=none
+
+    echo "##### Finished training task $i #####"
+    echo "##### Evaluation after training task $i #####"
+
+    for ((eval_i = 0; eval_i <= i; eval_i++)); do
+        echo "##### Evaluating task $eval_i with checkpoint from task $i #####"
+
+        eval_split="d$eval_i"
+        eval_query_dir="$base_dir/$eval_split/eval_queries"
+        eval_qrel_path="$eval_query_dir/eval_qrel.json"
+
+        eval_model_dir="$output_dir"
+        out_dir="$eval_model_dir/out"
+        config_path="$eval_model_dir/mixlora_config.json"
+
+        python eval_mixlora.py \
+            --pretrained_path="$eval_model_dir" \
+            --mixlora_config_json_path="$config_path" \
+            --docid_to_tokenids_path="$docid_to_smtid_path" \
+            --out_dir="$out_dir" \
+            --q_collection_paths="$eval_query_dir" \
+            --eval_qrel_path="$eval_qrel_path" \
+            --max_new_token_for_docid=8 \
+            --batch_size=512 \
+            --topk=10
+
+        echo ""
+    done
+
+    echo "##### Finished evaluation for task $i #####"
+    echo ""
+done
+
+
+model_name=mixloradsi
+experiment_dir=experiments
+run_name=row2_naive_expansion
+num_tasks=4
+initial_mixlora_config_path=./MixLoraDSI/config/msmarco/ablations/row2_naive_expansion.json
+
+for (( i = 1; i <= num_tasks; i++ ))
+do
+
+  current_split=d$i
+  previous_split=d$((i-1))
+
+  data_root_dir=./mixloradsi/msmarco/$current_split
+  query_to_docid_path=$data_root_dir/doc2query/query_to_docid.train.json # Only pseudo queries, **could merge with natural queries later**
+  output_dir=$data_root_dir/$experiment_dir/$run_name
+  docid_to_smtid_path=$data_root_dir/$experiment_dir/rq_smtid/docid_to_tokenids.json
+
+  if [ $i -eq 1 ]; then
+    model_dir=./mixloradsi/msmarco/d0/$experiment_dir/mixloradsi-pt
+    mixlora_config_json_path=$initial_mixlora_config_path
+    epoch=5
+  else
+    model_dir=./mixloradsi/msmarco/$previous_split/$experiment_dir/$run_name
+    mixlora_config_json_path=./mixloradsi/msmarco/$previous_split/$experiment_dir/$run_name/mixlora_config.json
+    epoch=5
+  fi
+  
+  printf "##### Training task $i #####\n\n"
+
+  python train_naive_expansion.py \
+  --run_name=$current_split\_$run_name \
+  --output_dir=$output_dir \
+  --model_name=$model_name \
+  --pretrained_path=$model_dir \
+  --query_to_docid_path=$query_to_docid_path \
+  --docid_to_smtid_path=$docid_to_smtid_path \
+  --mixlora_config_json_path=$mixlora_config_json_path \
+  --taskid=$i \
+  --save_safetensors=False \
+  --save_total_limit=1 \
+  --learning_rate=1e-3 \
+  --optim=adamw_8bit \
+  --dataloader_num_workers=4 \
+  --gradient_accumulation_steps=1 \
+  --per_device_train_batch_size=512 \
+  --bf16=True \
+  --tf32=True \
+  --num_train_epochs=$epoch \
+  --weight_decay=0.01 \
+  --save_steps=20000 \
+  --warmup_ratio=0.1 \
+  --logging_steps=1000 \
+  --lr_scheduler_type=linear \
+  --max_grad_norm=1.0 \
+  --report_to=none
+
+  printf "##### Finished training task $i#####\n\n"
+
+  printf "##### Evaluation after training task $i#####\n\n"
+  for ((eval_i=0; eval_i<=$i; eval_i++))
+  do
+        printf "##### Evaluating task $eval_i with checkpoint trained upto task $i#####\n"
+
+        train_split=$current_split
+        data_root_dir=./mixloradsi/msmarco/$train_split
+        model_dir=$data_root_dir/$experiment_dir/$run_name
+        out_dir=$data_root_dir/$experiment_dir/$run_name/out
+        docid_to_tokenids_path=./mixloradsi/msmarco/$train_split/experiments/rq_smtid/docid_to_tokenids.json
+        
+        eval_split=d$eval_i
+        q_collection_paths=./mixloradsi/msmarco/$eval_split/eval_queries
+        eval_qrel_path=$q_collection_paths/eval_qrel.json
+        mixlora_config_json_path=./mixloradsi/msmarco/$train_split/$experiment_dir/$run_name/mixlora_config.json
+
+        torchrun --master_port=25250 --nproc_per_node=1 eval_mixlora.py \
+                --pretrained_path=$model_dir \
+                --mixlora_config_json_path=$mixlora_config_json_path \
+                --docid_to_tokenids_path=$docid_to_tokenids_path \
+                --out_dir=$out_dir \
+                --q_collection_paths=$q_collection_paths \
+                --eval_qrel_path=$eval_qrel_path \
+                --max_new_token_for_docid=8 \
+                --batch_size 512 \
+                --topk 10
+        printf "\n\n"
+  done
+  printf "##### Finished evaluation after training task $i#####\n\n"
+done

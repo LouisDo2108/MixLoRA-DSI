@@ -1,0 +1,97 @@
+{
+  "r": 8,
+  "lora_alpha": 16,
+  "lora_dropout": 0.05,
+  "top_k": 2,
+  "router_loss": true,
+  "router_aux_loss_coef": 0.01,
+  "encoder": false,
+  "decoder": true,
+  "encoder_attention": false,
+  "decoder_attention": false,
+  "attention_target_modules": {
+    "q": true,
+    "k": false,
+    "v": true,
+    "o": false,
+    "wi": true,
+    "wo": true
+  },
+  "encoder_target_layers": {
+    "0": false,
+    "1": false,
+    "2": false,
+    "3": false,
+    "4": false,
+    "5": false,
+    "6": false,
+    "7": false,
+    "8": false,
+    "9": false,
+    "10": false,
+    "11": false
+  },
+  "decoder_target_layers": {
+    "0": true,
+    "1": true,
+    "2": true,
+    "3": true,
+    "4": true,
+    "5": false,
+    "6": false,
+    "7": false,
+    "8": false,
+    "9": false,
+    "10": false,
+    "11": false
+  },
+  "num_experts": {
+    "0": 2,
+    "1": 2,
+    "2": 2,
+    "3": 2,
+    "4": 2,
+    "5": 2,
+    "6": 2,
+    "7": 2,
+    "8": 2,
+    "9": 2,
+    "10": 2,
+    "11": 2
+  },
+
+  "naive_expand_lora": false,
+  "varigrow": true,
+  "update_only_expanded": true,
+  "rq_specific_mask_head": true,
+  "freeze_vocab": false,
+  "slow_learn_rq": true,
+
+  "kl_loss": true,
+  "kl_loss_coef": 0.05,
+
+  "no_aux_loss": true,
+  "balance_loss_coef": 1e-2,
+  "router_z_loss_coef": 1e-3,
+  "init_avg_experts": false,
+  "normalized_router_weight": false,
+
+  "cosine_sim_loss": true,
+  "cosine_sim_loss_coef": 0.5,
+  "cosine_classifier": true,
+
+  "router_contrastive_loss": true,
+  "router_contrastive_loss_coef": 1.0,
+  "router_contrastive_loss_temperature": 1.0,
+
+  "energy_score_temperature": 1.0,
+  "novelty_result": null,
+  "layerwise_novelty_threshold": 1.0,
+
+  "calibrate_router_logits": false,
+  "l2_loss": false,
+  "l2_loss_coef": 1.0,
+  "use_sigmoid": false,
+
+  "ood_sigma_threshold": 0.0
+}

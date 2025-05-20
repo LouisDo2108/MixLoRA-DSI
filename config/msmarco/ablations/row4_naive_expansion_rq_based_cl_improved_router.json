@@ -1,0 +1,8 @@
+{
+  "rq_specific_mask_head": true,
+  "slow_learn_rq": true,
+  "kl_loss": true,
+  "no_aux_loss": true,
+  "cosine_classifier": true,
+  "router_contrastive_loss": true
+}
