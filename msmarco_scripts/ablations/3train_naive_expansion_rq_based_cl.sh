@@ -12,7 +12,7 @@ cd ./MixLoraDSI
 model_name="mixloradsi"
 experiment_dir="experiments"
 run_name="row3_naive_expansion_rq_based_cl"
-base_dir="/home/thuy0050/ft49_scratch2/thuy0050/mixloradsi/msmarco"
+base_dir="./mixloradsi/msmarco"
 initial_config="./MixLoraDSI/config/msmarco/ablations/row3_naive_expansion_rq_based_cl.json"
 epoch=5
 num_tasks=4
