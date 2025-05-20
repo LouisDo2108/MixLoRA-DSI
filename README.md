@@ -31,3 +31,6 @@ just before this line:
 ```python
 next_token_logits = outputs.logits[:, -1, :].clone()
 ```
+
+# Datasets and $D_0$ checkpoints
+We will release the dataset and checkpoints upon acceptance since we cannot share them anonymously.
