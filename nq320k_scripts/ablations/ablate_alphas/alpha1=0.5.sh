@@ -20,7 +20,7 @@ declare -a initial_configs=(
     "./MixLoraDSI/config/ablations/alphas/mixloradsi/0.5-0.5.json"
     "./MixLoraDSI/config/ablations/alphas/mixloradsi/0.5-0.05.json"
 )
-root_dir=/home/thuy0050/ft49_scratch2/thuy0050/mixloradsi/nq320k
+root_dir=./mixloradsi/nq320k
 
 # Loop through the experiments
 for ((exp=0; exp<${#run_names[@]}; exp++))

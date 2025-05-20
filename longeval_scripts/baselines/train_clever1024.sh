@@ -4,7 +4,7 @@ export TQDM_DISABLE=1
 
 source ~/.bashrc
 conda activate mixlora_dsi
-cd /home/thuy0050/code/MixLoraDSI
+cd ./MixLoraDSI
 
 
 model_name=mixloradsi
@@ -26,7 +26,7 @@ do
   # This is done only once, since during indexing D1, CLEVER cannot sample from D0
   if [ $i -eq 1 ]; then 
     model_dir=./mixloradsi/longeval/d0/$experiment_dir/mixloradsi-pt
-    mixlora_config_json_path=/home/thuy0050/code/MixLoraDSI/config/baselines/clever.json
+    mixlora_config_json_path=./MixLoraDSI/config/baselines/clever.json
     epoch=3
   else
     model_dir=./mixloradsi/longeval/$previous_split/$experiment_dir/$run_name

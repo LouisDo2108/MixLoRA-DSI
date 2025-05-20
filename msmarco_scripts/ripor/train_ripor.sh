@@ -7,7 +7,7 @@ cd ./MixLoraDSI
 
 
 task=seq2seq # Do not modify this for now
-data_root_dir=/home/thuy0050/mg61_scratch/thuy0050/mixlora_dsi/msmarco/d0
+data_root_dir=./mixlora_dsi/msmarco/d0
 experiment_dir=experiments
 run_name=ripor
 

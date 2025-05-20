@@ -1,5 +1,4 @@
 #!/bin/bash
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/scratch/ft49/thuy0050/miniconda/conda/envs/mixlora_dsi/lib
 export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
 
 source ~/.bashrc
